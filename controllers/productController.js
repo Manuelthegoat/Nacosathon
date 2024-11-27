@@ -11,6 +11,16 @@ exports.getProducts = async (req, res) => {
 
 exports.getProduct = async (req, res) => {
   try {
+    if (req.query.category) {
+      // If category query parameter is provided, filter products by category
+      const products = await Product.find({ category: req.query.category });
+      if (products.length === 0) {
+        return res.status(404).json({ message: 'No products found for this category' });
+      }
+      return res.json(products);
+    }
+
+    // Otherwise, find the product by ID
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });
     res.json(product);
@@ -19,12 +29,13 @@ exports.getProduct = async (req, res) => {
   }
 };
 
+
 exports.createProduct = async (req, res) => {
     try {
-      const { name, price, description, imageURL } = req.body;
+      const { name, price, description, imageURL, category } = req.body;
   
    
-      if (!name || !price) {
+      if (!name || !price ) {
         return res.status(400).json({ message: 'Name and price are required' });
       }
   
@@ -34,6 +45,7 @@ exports.createProduct = async (req, res) => {
         price,
         description,
         imageURL,
+        category,
       });
   
      
